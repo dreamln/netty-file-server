@@ -181,7 +181,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     }
 
     private void uploadFile(ChannelHandlerContext ctx, FullHttpRequest request) {
-
+        // test comment
         try {
             decoder = new HttpPostRequestDecoder(factory, request);
             System.out.println("decoder created");
