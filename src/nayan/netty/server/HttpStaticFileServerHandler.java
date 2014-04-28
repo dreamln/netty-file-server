@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package nayan.netty.server;
 
 import io.netty.buffer.Unpooled;
@@ -53,7 +48,6 @@ import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
 import org.json.JSONException;
 import org.json.JSONObject;
-//import server.upload.HttpUploadServerHandler;
 
 /**
  *
@@ -61,10 +55,11 @@ import org.json.JSONObject;
  */
 public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private static final String BASE_PATH = "/Users/nayan/Reve/tmp/";
+    // where to store the files
+    private static final String BASE_PATH = "/Users/nayan/Reve/tmp/"; 
+    
+    // query param used to download a file
     private static final String FILE_QUERY_PARAM = "file";
-    //private static final String BASE_PATH = "/Users/nayan/Reve/tmp/";
-    //private static final String BASE_PATH = "/Users/nayan/Reve/tmp/";
 
     private HttpPostRequestDecoder decoder;
     private static final HttpDataFactory factory = new DefaultHttpDataFactory(true);
@@ -168,6 +163,12 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         }
     }
 
+    /**
+     * This will set the content types of files. If you want to support any files 
+     * add the content type and corresponding file extension here.
+     * @param response
+     * @param file 
+     */
     private static void setContentTypeHeader(HttpResponse response, File file) {
         MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
         mimeTypesMap.addMimeTypes("image png tif jpg jpeg bmp");
@@ -315,7 +316,6 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 
             fileUpload.renameTo(new File(fileName)); // enable to move into another
         } catch (IOException ex) {
-            //Logger.getLogger(HttpUploadServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             fileName = null;
         }
 
