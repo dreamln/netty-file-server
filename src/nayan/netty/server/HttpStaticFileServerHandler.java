@@ -307,14 +307,16 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
      * @return name of the saved file. null if error occurred
      */
     private String saveFileToDisk(FileUpload fileUpload) {
-        String fileName = null;
+        String filePath = null;
+        String fileName = fileUpload.getFilename();
+        
         try {
-            fileName = BASE_PATH;
-            fileName += System.currentTimeMillis() + "_";
+            filePath = BASE_PATH;
+            filePath += System.currentTimeMillis() + "_";
 
-            fileName += fileUpload.getFilename();
+            filePath += fileName;
 
-            fileUpload.renameTo(new File(fileName)); // enable to move into another
+            fileUpload.renameTo(new File(filePath)); // enable to move into another
         } catch (IOException ex) {
             fileName = null;
         }
