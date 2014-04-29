@@ -38,6 +38,9 @@ public class HttpStaticFileServer {
              .childHandler(new HttpStaticFileServerInitializer());
 
             b.bind(port).sync().channel().closeFuture().sync();
+            
+            System.out.println("File server started at port " + port
+					+ '.');
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
