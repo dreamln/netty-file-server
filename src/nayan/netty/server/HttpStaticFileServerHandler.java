@@ -55,7 +55,7 @@ import java.util.UUID;
 public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     // where to store the files
-    private static final String BASE_PATH = "/Users/nayan/Reve/tmp/";
+    private static final String BASE_PATH = "uploads/";
 
     // query param used to download a file
     private static final String FILE_QUERY_PARAM = "file";
