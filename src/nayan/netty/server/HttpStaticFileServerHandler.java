@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.UUID;
 
 /**
  *
@@ -317,6 +318,16 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
             }
         }
     }
+    /**
+     * generates and returns a unique string that'll be used to save an uploaded 
+     * file to disk
+     * @return generated unique string
+     */
+    private String getUniqueId(){
+        UUID uniqueId = UUID.randomUUID();
+        
+        return uniqueId.toString();
+    }
 
     /**
      * Saves the uploaded file to disk.
@@ -325,8 +336,10 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
      * @return name of the saved file. null if error occurred
      */
     private String saveFileToDisk(FileUpload fileUpload) {
+        
         String filePath = null;
-        String fileName = System.currentTimeMillis() + "_" + fileUpload.getFilename();
+        
+        String fileName = getUniqueId() + "_" + fileUpload.getFilename();
         
         try {
             filePath = BASE_PATH + fileName;
