@@ -72,13 +72,18 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 
         URI uri = new URI(request.getUri());
         String uriStr = uri.getPath();
-
+        
+        System.out.println(request.getMethod() + " request received");
+        
         if (request.getMethod() == HttpMethod.GET) {
             serveFile(ctx, request); // user requested a file, serve it
         } else if (request.getMethod() == HttpMethod.POST) {
             uploadFile(ctx, request); // user requested to upload file, handle request
+        } else if (request.getMethod() == HttpMethod.OPTIONS) {
+            sendOptionsRequestResponse(ctx); // OPTIONS request received, send options header
         } else {
             // unknown request, send error message
+            System.out.println(request.getMethod() + " request received, sending 405");
             sendError(ctx, HttpResponseStatus.METHOD_NOT_ALLOWED);
         }
 
@@ -140,6 +145,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         setContentLength(response, fileLength);
         setContentTypeHeader(response, file);
+        
         //setDateAndCacheHeaders(response, file);
         if (isKeepAlive(request)) {
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
@@ -181,6 +187,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     }
 
     private void uploadFile(ChannelHandlerContext ctx, FullHttpRequest request) {
+        
         // test comment
         try {
             decoder = new HttpPostRequestDecoder(factory, request);
@@ -224,6 +231,15 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         }
 
     }
+    
+    private void sendOptionsRequestResponse(ChannelHandlerContext ctx){
+        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+        response.headers().add("Access-Control-Allow-Origin", "*");
+        response.headers().add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response.headers().add("Access-Control-Allow-Headers", 
+                "X-Requested-With, Content-Type, Content-Length");
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
 
     private void sendUploadedFileName(String fileName, ChannelHandlerContext ctx) {
         JSONObject jsonObj = new JSONObject();
@@ -246,6 +262,8 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
                 HttpVersion.HTTP_1_1, status, Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
 
         response.headers().set(CONTENT_TYPE, contentType);
+        response.headers().add("Access-Control-Allow-Origin", "*");
+        //setCrossDomainHeader(response);
 
         // Close the connection as soon as the error message is sent.
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -308,13 +326,10 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
      */
     private String saveFileToDisk(FileUpload fileUpload) {
         String filePath = null;
-        String fileName = fileUpload.getFilename();
+        String fileName = System.currentTimeMillis() + "_" + fileUpload.getFilename();
         
         try {
-            filePath = BASE_PATH;
-            filePath += System.currentTimeMillis() + "_";
-
-            filePath += fileName;
+            filePath = BASE_PATH + fileName;
 
             fileUpload.renameTo(new File(filePath)); // enable to move into another
         } catch (IOException ex) {
