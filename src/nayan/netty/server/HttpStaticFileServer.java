@@ -16,6 +16,7 @@
 package nayan.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -37,10 +38,11 @@ public class HttpStaticFileServer {
              .channel(NioServerSocketChannel.class)
              .childHandler(new HttpStaticFileServerInitializer());
 
-            b.bind(port).sync().channel().closeFuture().sync();
-            
+            Channel ch = b.bind(port).sync().channel();
             System.out.println("File server started at port " + port
 					+ '.');
+            ch.closeFuture().sync();
+            
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
