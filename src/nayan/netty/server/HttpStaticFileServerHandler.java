@@ -235,10 +235,10 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     
     private void sendOptionsRequestResponse(ChannelHandlerContext ctx){
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        response.headers().add("Access-Control-Allow-Origin", "*");
-        response.headers().add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-        response.headers().add("Access-Control-Allow-Headers", 
-                "X-Requested-With, Content-Type, Content-Length");
+//        response.headers().add("Access-Control-Allow-Origin", "*");
+//        response.headers().add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+//        response.headers().add("Access-Control-Allow-Headers", 
+//                "X-Requested-With, Content-Type, Content-Length");
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
