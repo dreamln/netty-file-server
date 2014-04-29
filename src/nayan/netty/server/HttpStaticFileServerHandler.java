@@ -57,8 +57,8 @@ import java.util.UUID;
 public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     // where to store the files
-    private static final String BASE_PATH = "/Users/nayan/Reve/tmp/"; 
-    
+    private static final String BASE_PATH = "/Users/nayan/Reve/tmp/";
+
     // query param used to download a file
     private static final String FILE_QUERY_PARAM = "file";
 
@@ -73,15 +73,13 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
 
         URI uri = new URI(request.getUri());
         String uriStr = uri.getPath();
-        
+
         System.out.println(request.getMethod() + " request received");
-        
+
         if (request.getMethod() == HttpMethod.GET) {
             serveFile(ctx, request); // user requested a file, serve it
         } else if (request.getMethod() == HttpMethod.POST) {
             uploadFile(ctx, request); // user requested to upload file, handle request
-        } else if (request.getMethod() == HttpMethod.OPTIONS) {
-            sendOptionsRequestResponse(ctx); // OPTIONS request received, send options header
         } else {
             // unknown request, send error message
             System.out.println(request.getMethod() + " request received, sending 405");
@@ -146,7 +144,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         setContentLength(response, fileLength);
         setContentTypeHeader(response, file);
-        
+
         //setDateAndCacheHeaders(response, file);
         if (isKeepAlive(request)) {
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
@@ -171,10 +169,11 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     }
 
     /**
-     * This will set the content types of files. If you want to support any files 
-     * add the content type and corresponding file extension here.
+     * This will set the content types of files. If you want to support any
+     * files add the content type and corresponding file extension here.
+     *
      * @param response
-     * @param file 
+     * @param file
      */
     private static void setContentTypeHeader(HttpResponse response, File file) {
         MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
@@ -188,7 +187,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     }
 
     private void uploadFile(ChannelHandlerContext ctx, FullHttpRequest request) {
-        
+
         // test comment
         try {
             decoder = new HttpPostRequestDecoder(factory, request);
@@ -204,8 +203,6 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         if (decoder != null) {
             if (request instanceof HttpContent) {
 
-                //System.out.println("request instance of HttpContent");
-
                 // New chunk is received
                 HttpContent chunk = (HttpContent) request;
                 try {
@@ -215,8 +212,6 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
                     sendError(ctx, HttpResponseStatus.BAD_REQUEST, "Failed to decode file data");
                     return;
                 }
-
-                //System.out.println("before readHttpDataChunkByChunk");
 
                 readHttpDataChunkByChunk(ctx);
                 // example of reading only if at the end
@@ -232,13 +227,9 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         }
 
     }
-    
-    private void sendOptionsRequestResponse(ChannelHandlerContext ctx){
+
+    private void sendOptionsRequestResponse(ChannelHandlerContext ctx) {
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-//        response.headers().add("Access-Control-Allow-Origin", "*");
-//        response.headers().add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-//        response.headers().add("Access-Control-Allow-Headers", 
-//                "X-Requested-With, Content-Type, Content-Length");
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -318,14 +309,16 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
             }
         }
     }
+
     /**
-     * generates and returns a unique string that'll be used to save an uploaded 
+     * generates and returns a unique string that'll be used to save an uploaded
      * file to disk
+     *
      * @return generated unique string
      */
-    private String getUniqueId(){
+    private String getUniqueId() {
         UUID uniqueId = UUID.randomUUID();
-        
+
         return uniqueId.toString();
     }
 
@@ -336,11 +329,20 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
      * @return name of the saved file. null if error occurred
      */
     private String saveFileToDisk(FileUpload fileUpload) {
+
+        String filePath = null; // full path of the new file to be saved
+        String upoadedFileName = fileUpload.getFilename();
         
-        String filePath = null;
-        
-        String fileName = getUniqueId() + "_" + fileUpload.getFilename();
-        
+        // get the extension of the uploaded file
+        String extension = "";
+        int i = upoadedFileName.lastIndexOf('.');
+        if (i > 0) {
+            // get extension including the "."
+            extension = upoadedFileName.substring(i); 
+        }
+
+        String fileName = getUniqueId() + extension;
+
         try {
             filePath = BASE_PATH + fileName;
 
