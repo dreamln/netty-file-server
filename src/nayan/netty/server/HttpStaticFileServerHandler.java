@@ -184,7 +184,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         // test comment
         try {
             decoder = new HttpPostRequestDecoder(factory, request);
-            System.out.println("decoder created");
+            //System.out.println("decoder created");
         } catch (HttpPostRequestDecoder.ErrorDataDecoderException e1) {
             e1.printStackTrace();
             sendError(ctx, HttpResponseStatus.BAD_REQUEST, "Failed to decode file data");
@@ -196,7 +196,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         if (decoder != null) {
             if (request instanceof HttpContent) {
 
-                System.out.println("request instance of HttpContent");
+                //System.out.println("request instance of HttpContent");
 
                 // New chunk is received
                 HttpContent chunk = (HttpContent) request;
@@ -208,7 +208,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
                     return;
                 }
 
-                System.out.println("before readHttpDataChunkByChunk");
+                //System.out.println("before readHttpDataChunkByChunk");
 
                 readHttpDataChunkByChunk(ctx);
                 // example of reading only if at the end
