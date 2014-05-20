@@ -3,73 +3,80 @@
 <head>
 <title>File Upload Progress Demo #1</title>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+createdFormCount = 0; // how many file uploads forms are created so far, used to generate form ID
+var attachFormEvents = function(contentHolderSelector, formId) {
+    
+    var barId = formId + '-progress-bar';
+    var barParentId = formId + 'progress';
+    var statusId = formId + '-status';
+       
+    $('form').ajaxForm({
+        crossDomain: true,
+        beforeSend: function() {
+
+            var progressHtml = '<div style="width:100%;border:1px solid #CCC" id="'+barParentId+'">';
+            progressHtml += '<div style="width: 0%; height:20px;background-color:green" id="'+barId+'"></div>';
+            progressHtml += '</div>';
+            $(contentHolderSelector).append(progressHtml);
+            $('#'+formId).remove();
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+            var percentVal = percentComplete + '%';
+            $('#'+barId).animate({'width':percentVal});
+            //percent.html(percentVal);
+        },
+        success: function() {
+            var percentVal = '100%';
+            //bar.width(percentVal);
+            $('#'+barId).animate({'width':percentVal});
+            //percent.html(percentVal);
+        },
+        complete: function(xhr) {
+            //console.log(xhr.responseText);
+            $('#'+barParentId).remove();
+            var responseObj = JSON.parse(xhr.responseText);
+            
+            $(contentHolderSelector).append('<p><a href="http://85.13.195.199:8080?file=' + responseObj.file+'" target="_blank">Open</a></p>');
+        }
+    }); 
+
+};
+$(document).on('click', '.reve-chat-file-form-cancel-btn', function(){
+    $(this).parent().fadeOut(); // hide the file upload form
+});
+
+$(document).ready(function(){
+    $('#reve-chat-send-file-btn').click(function(){
+        createdFormCount++;
+        var formId = 'reve-chat-file-form-' + createdFormCount;
+        var formHtml = '<form action="http://85.13.195.199:8080" method="post" enctype="multipart/form-data"';
+        formHtml += 'style="margin:3px;border:1px solid #000"' + ' id="' + formId + '">';
+        formHtml += '<input type="file" name="myfile">';
+        formHtml += '<button type="submit">Upload File to Server</button>';
+        formHtml += '<button type="button" class="reve-chat-file-form-cancel-btn">Cancel</button>';
+        formHtml += '</form>';
+
+        $('#reve-chat-window-content').append(formHtml);
+        attachFormEvents('#reve-chat-window-content', formId);
+    });
+});
+</script>
 <style>
 body{padding-top: 50px;}
 </style>
 </head>
 <body>
-    
-    <div class="container">
-        <div class="well">
-            <h1>Ajax File Upload</h1>
-        	
-            <form role="form" action="http://localhost:8080" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="fileInput">File</label>
-                    <input type="file" name="myfile" class="form-control" id="fileInput">
-                </div>
-                <button type="submit" class="btn btn-primary">Upload File to Server</button>
-            </form>
-            <br />
-            <div class="progress progress-striped active">
-                <div class="progress-bar"  role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                    <span class="sr-only">0%</span>
-                </div>
-            </div>
-            
-            <div id="status"></div>
-        </div>
+    <div id="reve-chat-window" style="background-color:orange;padding:10px">
+        <h3>Reve Live Chat</h3>
+        <div id="reve-chat-window-content" style="background-color:white;padding:5px;"></div>
+        <button type="button" id="reve-chat-send-file-btn">Send a file</button>
     </div>
 
 <script>
-(function() {
-    
-var bar = $('.progress-bar');
-var barParent = $('.progress');
-var percent = $('.sr-only');
-var status = $('#status');
-   
-$('form').ajaxForm({
-    crossDomain: true,
-    beforeSend: function() {
-        status.empty();
-        barParent.show();
-        var percentVal = '0%';
-        bar.width(percentVal)
-        percent.html(percentVal);
-    },
-    uploadProgress: function(event, position, total, percentComplete) {
-        var percentVal = percentComplete + '%';
-        bar.width(percentVal)
-        percent.html(percentVal);
-    },
-    success: function() {
-        var percentVal = '100%';
-        bar.width(percentVal)
-        percent.html(percentVal);
-    },
-	complete: function(xhr) {
-		//console.log(xhr.responseText);
-        barParent.hide();
-        var responseObj = JSON.parse(xhr.responseText);
-        
-        status.html('<a href="http://localhost:8080?file=' + responseObj.file+'" target="_blank">Open</a>');
-	}
-}); 
 
-})();       
 </script>
